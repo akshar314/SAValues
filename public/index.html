@@ -3,14 +3,23 @@
 
 <head>
     <title> To-do list </title>
+    <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 
 <body>
-    <div id="container">
-        <div id="add"></div>
-        <div id="remove"></div>
-        <div id="toDo"></div>
+    <div class="container">
+        <div class="display">
+            <h1> To Do list </h1>
+            <div id="add"></div>
+            <div id="remove"></div>
+            <div id="toDo"></div>
+        </div>
+        <div class="input">
+            <h3> Enter Item </h3>
+            <div id="textArea" contenteditable="true" onkeypress='detectEnter(event,this)'></div>
+            <!-- <textarea id="inputArea" onkeypress='detectEnter(event,this)' autofocus></textarea> -->
+        </div>
     </div>
     <script>
     class ToDo {
@@ -53,10 +62,11 @@
 
         // add item
         if (list._currItem != null) {
-            var p = document.createElement('p')
-            p.setAttribute('contenteditable', 'true')
-            p.textContent = list._items[list._top++]
-            parent.appendChild(p)
+            var div = document.createElement('div')
+                // p.setAttribute('contenteditable', 'true')
+            div.setAttribute('class', 'listItems')
+            div.textContent = list._items[list._top++]
+            parent.insertBefore(div, parent.firstChild)
         }
         // remove item
         else if (list._currItem == null && parent.hasChildNodes()) {
@@ -68,14 +78,23 @@
 
     // When the user clicks on the green button
     document.getElementById('add').addEventListener('click', function(event) {
-        var newItem = prompt("Enter the item");
-        toDoItem.item = newItem;
+        var inputArea = document.getElementById('inputArea')
+        toDoItem.item = inputArea.value
+        inputArea.value = ''
     });
 
-	// When the user clicks on the red button
-    document.getElementById('remove').addEventListener('click', function(event) {
-        toDoItem.item = null;
-    });
+    // When the user clicks on the red button
+    // document.getElementById('remove').addEventListener('click', function(event) {
+    //     toDoItem.item = null;
+    // });
+
+    function detectEnter(event, textArea) {
+        var code = (event.keyCode ? event.keyCode : event.which)
+        if (code == 13) {
+            toDoItem.item = textArea.textContent
+            textArea.textContent = ''
+        }
+    }
     </script>
 </body>
 
