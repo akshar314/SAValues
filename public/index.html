@@ -1,62 +1,80 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Self Adjusting computation App</title>
-  </head>
-  <body>
 
-    <div id="main">
-        <div id="counter">
-        </div>
-        <button>Add</button><button>Sub</button>
+<head>
+    <title> To-do list </title>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+
+<body>
+    <div id="container">
+        <div id="add"></div>
+        <div id="remove"></div>
+        <ul id="toDo"></ul>
     </div>
+    <script>
+    class ToDo {
+        constructor() {
+            this._items = []
+            this._currItem = null
+            this._top = 0
+            this._dependencies = []
+        }
 
+        get item() {
+            return this._items
+        }
 
-<script>
+        set item(val) {
+            this._currItem = val
 
-class Value {
-    constructor(value) {
-    	this._value = value
-    	this._dependencies = []
+            if (this._currItem != null)
+                this._items.push(val)
+
+            this._dependencies.forEach(f => {
+                f(this)
+            })
+
+            this._currItem = null
+        }
+
+        addDependency(f) {
+            this._dependencies.push(f)
+        }
     }
 
-    get value() {
-    	return this._value
-    }
+    // New todo list
+    var toDoItem = new ToDo()
 
-    set value(val) {
-    	this._value = val
-    	this._dependencies.forEach(f => f(this))
-    }
+    // Add and remove items
+    toDoItem.addDependency((list) => {
 
-    fetch(url) {
-        fetch(url)
-            .then(response => response.text())
-            .then(body => this.value = body)
-    }
+        var parent = document.getElementById('toDo')
 
-    addDependency(f) {
-    	this._dependencies.push(f)
-    }
-}
+        // add item
+        if (list._currItem != null) {
+            var li = document.createElement('li')
+            li.textContent = list._items[list._top++]
+            parent.appendChild(li)
+        }
+        // remove item
+        else if (list._currItem == null && parent.hasChildNodes()) {
+            parent.removeChild(parent.lastChild);
+            list._top--
+        }
+    });
 
-const counter = new Value()
-counter.addDependency(counter => 
-    document.getElementById('counter').textContent = counter.value)
+    // When the user clicks on the green button
+    document.getElementById('add').addEventListener('click', function(event) {
+        var newItem = prompt("Enter the item");
+        toDoItem.item = newItem;
+    });
 
-document.querySelectorAll('button')[0]
-    .addEventListener('click', () => ++counter.value)
-document.querySelectorAll('button')[1]
-    .addEventListener('click', () => --counter.value)
+	// When the user clicks on the red button
+    document.getElementById('remove').addEventListener('click', function(event) {
+        toDoItem.item = null;
+    });
+    </script>
+</body>
 
-counter.value = 0
-
-var gpage = new Value()
-gpage.addDependency(val => console.log(val.value))
-gpage.fetch("index.html")
-
-</script>
-
-  </body>
 </html>
