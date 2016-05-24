@@ -60,6 +60,7 @@
         // remove item
         else if (list._currItem == null && parent.hasChildNodes()) {
             parent.removeChild(parent.lastChild);
+            list._items.pop()
             list._top--
         }
     });
