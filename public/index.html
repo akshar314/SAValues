@@ -10,7 +10,7 @@
     <div id="container">
         <div id="add"></div>
         <div id="remove"></div>
-        <ul id="toDo"></ul>
+        <div id="toDo"></div>
     </div>
     <script>
     class ToDo {
@@ -53,9 +53,10 @@
 
         // add item
         if (list._currItem != null) {
-            var li = document.createElement('li')
-            li.textContent = list._items[list._top++]
-            parent.appendChild(li)
+            var p = document.createElement('p')
+            p.setAttribute('contenteditable', 'true')
+            p.textContent = list._items[list._top++]
+            parent.appendChild(p)
         }
         // remove item
         else if (list._currItem == null && parent.hasChildNodes()) {
