@@ -1,5 +1,5 @@
-# A To-do application using Self Adjusting Values (SAValues) paradigm 
-## Using Self-Adjusting Values (SAValues) paradigm ##
+# A To-do application
+### Using Self-Adjusting Values (SAValues) paradigm ###
 
 
 	To start: npm start
