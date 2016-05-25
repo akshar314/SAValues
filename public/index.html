@@ -2,7 +2,8 @@
 <html>
 
 <head>
-    <title> To-do list </title>
+	<meta charset="utf-8">
+    <title> Self Adjusting computation App </title>
     <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
@@ -19,76 +20,99 @@
         </div>
     </div>
     <script>
+	class Value {
+	    constructor(value) {
+	    	this._value = value
+	    	this._dependencies = []
+	    }
+	    get value() {
+	    	return this._value
+	    }
+	    set value(val) {
+	    	this._value = val
+	    	this._dependencies.forEach(f => { 
+	    		f(this) 
+	    	})
+	    }
+	    fetch(url) {
+	        fetch(url)
+	            .then(response => response.text())
+	            .then(body => this.value = body)
+	    }
+	    addDependency(f) {
+	    	this._dependencies.push(f)
+	    }
+	}
+
     class ToDo {
         constructor() {
             this._items = []
             this._currItem = null
-            this._top = 0
-            this._dependencies = []
+            this._top = -1
         }
-
         get item() {
-            return this._items
+        	return this._currItem
         }
-
         set item(val) {
+        	// Setting current item object
+        	this._currItem = val
 
-            this._currItem = val
+        	// Setting dependencies
+	        val.addDependency(addItem)
+	        val.addDependency(removeItem)
 
-            // Add only items to array
-            if (typeof this._currItem === 'string')
-                this._items.push(val)
+	        //Incrementing number of items in the array
+	        this._top++
 
-            this._dependencies.forEach(f => {
-                f(this)
-            })
-
-            this._currItem = null
+	        // Pusing the Value object into array
+        	this._items.push(val)
         }
-
-        addDependency(f) {
-            this._dependencies.push(f)
+		get items() {
+        	return this._items
         }
-    }
+        set top(val) {
+        	this._top = val
+        }
+        get top() {
+        	return this._top
+        }
+     }
 
     // New todo list
     var toDoItem = new ToDo()
 
     // Add item
-    toDoItem.addDependency((list) => {
-
+    function addItem(listItem) {
         var parent = document.getElementById('toDo')
 
-        if (list._currItem != null && typeof list._currItem === 'string') {
+        if (listItem.value != null && typeof listItem.value === 'string') {
             var div = document.createElement('div')
-                // p.setAttribute('contenteditable', 'true')
             div.setAttribute('class', 'listItems')
-            div.setAttribute('id', `item${list._top}`)
+            div.setAttribute('id', `item${toDoItem.top}`)
             div.setAttribute('onclick', 'itemAction(this)')
-            div.textContent = list._items[list._top++]
+            div.textContent = listItem.value
             parent.insertBefore(div, parent.firstChild)
-        }
-    })
+        }    	
+    }
 
-    // perform action
-    toDoItem.addDependency((list) => {
+    function removeItem(listItem) {
         var parent = document.getElementById('toDo')
-        if (list._currItem != null && typeof list._currItem === 'object') {
+        var valueObj = listItem.value
+
+        if (valueObj != null && typeof valueObj === 'object') {
 
             // if action is to remove item
-            if (list._currItem.action === 'remove') {
-                var item = list._currItem.item
-                var itemId = item.getAttribute('id')
-                var itemIndex = Number(itemId.split(/item/)[1])
-                console.log("will remove item: " + item.getAttribute('id'))
+            if (valueObj.action === 'remove') {
+                
+                console.log("will remove item: " + valueObj.itemId)
 
                 // remove item from DOM
-                console.log("Deleting: " + itemId)
-                item.remove()
+                console.log("Deleting: " + valueObj.itemId)
+                valueObj.item.remove()
 
                 // remove item from array
-                list._items.splice(itemIndex, 1)
-                list._top--
+                toDoItem._items.splice(valueObj.itemIndex, 1)
+                toDoItem.top--
 
                 // get all item nodes
                 var itemNodes = parent.childNodes
@@ -101,7 +125,7 @@
                 }
             }
         }
-    })
+    }
     </script>
     <script type="text/javascript" src="js/main.js"></script>
 </body>
