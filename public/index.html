@@ -10,15 +10,12 @@
 <body>
     <div class="container">
         <div class="display">
-            <h1> To Do list </h1>
-            <div id="add"></div>
-            <div id="remove"></div>
+            <h1 class="divTitle" onclick="toggleInputDisplay()"> To Do list </h1>
             <div id="toDo"></div>
         </div>
         <div class="input">
-            <h3> Enter Item </h3>
-            <div id="textArea" contenteditable="true" onkeypress='detectEnter(event,this)'></div>
-            <!-- <textarea id="inputArea" onkeypress='detectEnter(event,this)' autofocus></textarea> -->
+            <h3 class="divTitle"> Enter Item </h3>
+            <div id="textArea" contenteditable="true" onkeypress="detectEnter(event,this)"></div>
         </div>
     </div>
     <script>
@@ -35,9 +32,11 @@
         }
 
         set item(val) {
+
             this._currItem = val
 
-            if (this._currItem != null)
+            // Add only items to array
+            if (typeof this._currItem === 'string')
                 this._items.push(val)
 
             this._dependencies.forEach(f => {
@@ -55,47 +54,56 @@
     // New todo list
     var toDoItem = new ToDo()
 
-    // Add and remove items
+    // Add item
     toDoItem.addDependency((list) => {
 
         var parent = document.getElementById('toDo')
 
-        // add item
-        if (list._currItem != null) {
+        if (list._currItem != null && typeof list._currItem === 'string') {
             var div = document.createElement('div')
                 // p.setAttribute('contenteditable', 'true')
             div.setAttribute('class', 'listItems')
+            div.setAttribute('id', `item${list._top}`)
+            div.setAttribute('onclick', 'itemAction(this)')
             div.textContent = list._items[list._top++]
             parent.insertBefore(div, parent.firstChild)
         }
-        // remove item
-        else if (list._currItem == null && parent.hasChildNodes()) {
-            parent.removeChild(parent.lastChild);
-            list._items.pop()
-            list._top--
+    })
+
+    // perform action
+    toDoItem.addDependency((list) => {
+        var parent = document.getElementById('toDo')
+        if (list._currItem != null && typeof list._currItem === 'object') {
+
+            // if action is to remove item
+            if (list._currItem.action === 'remove') {
+                var item = list._currItem.item
+                var itemId = item.getAttribute('id')
+                var itemIndex = Number(itemId.split(/item/)[1])
+                console.log("will remove item: " + item.getAttribute('id'))
+
+                // remove item from DOM
+                console.log("Deleting: " + itemId)
+                item.remove()
+
+                // remove item from array
+                list._items.splice(itemIndex, 1)
+                list._top--
+
+                // get all item nodes
+                var itemNodes = parent.childNodes
+
+                // Reorder id's of all toDo items
+                var index = itemNodes.length - 1
+                for(var i = 0; i < itemNodes.length; i++) {
+                    // console.log(`Reordering ${itemNodes[i].getAttribute('id')} to item${index}`)
+                    itemNodes[i].setAttribute('id', `item${index--}`)                    
+                }
+            }
         }
-    });
-
-    // When the user clicks on the green button
-    document.getElementById('add').addEventListener('click', function(event) {
-        var inputArea = document.getElementById('inputArea')
-        toDoItem.item = inputArea.value
-        inputArea.value = ''
-    });
-
-    // When the user clicks on the red button
-    // document.getElementById('remove').addEventListener('click', function(event) {
-    //     toDoItem.item = null;
-    // });
-
-    function detectEnter(event, textArea) {
-        var code = (event.keyCode ? event.keyCode : event.which)
-        if (code == 13) {
-            toDoItem.item = textArea.textContent
-            textArea.textContent = ''
-        }
-    }
+    })
     </script>
+    <script type="text/javascript" src="js/main.js"></script>
 </body>
 
 </html>

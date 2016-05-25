@@ -80,15 +80,19 @@ html {
 	box-sizing: inherit;
 }
 
+body {
+	background: -webkit-linear-gradient(to right bottom, #D9EF68, #F7BA30);
+	background: -moz-linear-gradient(to right bottom,#D9EF68, #F7BA30);
+	background: linear-gradient(to right bottom, #D9EF68, #F7BA30);
+}
+
 .container {
 	position: relative;
-	border:1px solid black;
 	margin: 0.5% auto;
 	max-width: 1200px;
 	height: 40em;
 	padding-left: 30px;
 	padding-right: 30px;
-	background-color: yellow;
 }
 
 .display,
@@ -97,6 +101,9 @@ html {
 	color: black;
 	word-wrap: break-word;
 	line-height: 2.8em;
+	-webkit-transition: 1s ease-in-out;
+	   -moz-transition: 1s ease-in-out;
+	        transition: 1s ease-in-out;
 }
 
 .display {
@@ -117,12 +124,13 @@ html {
 
 .display > h1 {
 	margin-bottom: 10%;
+	cursor: pointer;
 }
 
 .input {
 	display: inline-block;
 	position: absolute;
-	background-color: #AAEC32;
+	background-color: #84C809;
 	width:30em;
 	left:55%;
 	top:18%;
@@ -142,7 +150,26 @@ html {
 }
 
 .listItems {
-	font-size: 3em;
+	font-size: 2.8em;
 	padding:2%;
 	border-bottom: 2px solid grey;
+	cursor: pointer;
+}
+
+.hideElement {
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s 1s, opacity 1s linear;
+}
+
+.displayRight {
+	-webkit-transform: translateX(50%);
+	   -moz-transform: translateX(50%);
+	        transform: translateX(50%);
+}
+
+.displayLeft{
+	-webkit-transform: translateX(-5%);
+	   -moz-transform: translateX(-5%);
+	        transform: translateX(-5%);
 }
