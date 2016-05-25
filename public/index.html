@@ -1,62 +1,109 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Self Adjusting computation App</title>
-  </head>
-  <body>
 
-    <div id="main">
-        <div id="counter">
+<head>
+    <title> To-do list </title>
+    <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="display">
+            <h1 class="divTitle" onclick="toggleInputDisplay()"> To Do list </h1>
+            <div id="toDo"></div>
         </div>
-        <button>Add</button><button>Sub</button>
+        <div class="input">
+            <h3 class="divTitle"> Enter Item </h3>
+            <div id="textArea" contenteditable="true" onkeypress="detectEnter(event,this)"></div>
+        </div>
     </div>
+    <script>
+    class ToDo {
+        constructor() {
+            this._items = []
+            this._currItem = null
+            this._top = 0
+            this._dependencies = []
+        }
 
+        get item() {
+            return this._items
+        }
 
-<script>
+        set item(val) {
 
-class Value {
-    constructor(value) {
-    	this._value = value
-    	this._dependencies = []
+            this._currItem = val
+
+            // Add only items to array
+            if (typeof this._currItem === 'string')
+                this._items.push(val)
+
+            this._dependencies.forEach(f => {
+                f(this)
+            })
+
+            this._currItem = null
+        }
+
+        addDependency(f) {
+            this._dependencies.push(f)
+        }
     }
 
-    get value() {
-    	return this._value
-    }
+    // New todo list
+    var toDoItem = new ToDo()
 
-    set value(val) {
-    	this._value = val
-    	this._dependencies.forEach(f => f(this))
-    }
+    // Add item
+    toDoItem.addDependency((list) => {
 
-    fetch(url) {
-        fetch(url)
-            .then(response => response.text())
-            .then(body => this.value = body)
-    }
+        var parent = document.getElementById('toDo')
 
-    addDependency(f) {
-    	this._dependencies.push(f)
-    }
-}
+        if (list._currItem != null && typeof list._currItem === 'string') {
+            var div = document.createElement('div')
+                // p.setAttribute('contenteditable', 'true')
+            div.setAttribute('class', 'listItems')
+            div.setAttribute('id', `item${list._top}`)
+            div.setAttribute('onclick', 'itemAction(this)')
+            div.textContent = list._items[list._top++]
+            parent.insertBefore(div, parent.firstChild)
+        }
+    })
 
-const counter = new Value()
-counter.addDependency(counter => 
-    document.getElementById('counter').textContent = counter.value)
+    // perform action
+    toDoItem.addDependency((list) => {
+        var parent = document.getElementById('toDo')
+        if (list._currItem != null && typeof list._currItem === 'object') {
 
-document.querySelectorAll('button')[0]
-    .addEventListener('click', () => ++counter.value)
-document.querySelectorAll('button')[1]
-    .addEventListener('click', () => --counter.value)
+            // if action is to remove item
+            if (list._currItem.action === 'remove') {
+                var item = list._currItem.item
+                var itemId = item.getAttribute('id')
+                var itemIndex = Number(itemId.split(/item/)[1])
+                console.log("will remove item: " + item.getAttribute('id'))
 
-counter.value = 0
+                // remove item from DOM
+                console.log("Deleting: " + itemId)
+                item.remove()
 
-var gpage = new Value()
-gpage.addDependency(val => console.log(val.value))
-gpage.fetch("index.html")
+                // remove item from array
+                list._items.splice(itemIndex, 1)
+                list._top--
 
-</script>
+                // get all item nodes
+                var itemNodes = parent.childNodes
 
-  </body>
+                // Reorder id's of all toDo items
+                var index = itemNodes.length - 1
+                for(var i = 0; i < itemNodes.length; i++) {
+                    // console.log(`Reordering ${itemNodes[i].getAttribute('id')} to item${index}`)
+                    itemNodes[i].setAttribute('id', `item${index--}`)                    
+                }
+            }
+        }
+    })
+    </script>
+    <script type="text/javascript" src="js/main.js"></script>
+</body>
+
 </html>
