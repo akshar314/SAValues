@@ -1,15 +1,8 @@
-## Node Static File Server
+# A To-do application
+### Using Self-Adjusting Values (SAValues) paradigm ###
 
-A basic nodejs server to serve from the `public` folder of your repo.
 
-### Install
+	To start: npm start
 
-    $ git clone git@github.com:geekskool/node-static-file-server.git <myappname>
-    $ cd <myappname>
-    $ npm install
-    $ npm start
+> View it on github <https://github.com/santoshrajan/SAValues>
 
-Now static files will be served from the `public` folder under `<myappname>`.
-Remember to change `name` in `package.json` to `<myappname>`.
-
-In your browser, browse to 'http://localhost:3000'

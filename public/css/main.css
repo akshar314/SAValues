@@ -82,8 +82,8 @@ html {
 
 body {
 	background: -webkit-linear-gradient(to right bottom, #D9EF68, #F7BA30);
-	background: -moz-linear-gradient(to right bottom,#D9EF68, #F7BA30);
-	background: linear-gradient(to right bottom, #D9EF68, #F7BA30);
+	background:    -moz-linear-gradient(to right bottom, #D9EF68, #F7BA30);
+	background:         linear-gradient(to right bottom, #D9EF68, #F7BA30);
 }
 
 .container {
@@ -109,7 +109,9 @@ body {
 .display {
 	display: inline-block;
 	position: absolute;
-	background-color: #F0516C;
+	background: -webkit-linear-gradient(to bottom, #FE90A3, #FC5874);
+	background:    -moz-linear-gradient(to bottom, #FE90A3, #FC5874);
+	background:         linear-gradient(to bottom, #FE90A3, #FC5874);
 	border-radius: 2em 0;
 	top:5%;
 	width:35em;
@@ -130,7 +132,9 @@ body {
 .input {
 	display: inline-block;
 	position: absolute;
-	background-color: #84C809;
+	background: -webkit-linear-gradient(to bottom, #ADE04D, #84C809);
+	background:    -moz-linear-gradient(to bottom, #ADE04D, #84C809);
+	background:         linear-gradient(to bottom, #ADE04D, #84C809);
 	width:30em;
 	left:55%;
 	top:18%;
@@ -154,6 +158,10 @@ body {
 	padding:2%;
 	border-bottom: 2px solid grey;
 	cursor: pointer;
+}
+
+.listItems:hover {
+	background-color: #FF70DB;
 }
 
 .hideElement {

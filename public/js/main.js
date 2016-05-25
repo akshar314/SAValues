@@ -1,8 +1,15 @@
-function itemAction(item) {
+function itemAction(item, action) {
     // Delete item
-    toDoItem.item = {
+
+    let itemId = item.getAttribute('id')
+    let itemIndex = Number(itemId.split(/item/)[1])
+    let valueObj = toDoItem.items[itemIndex]
+
+    valueObj.value = {
         item,
-        action: "remove"
+        itemId,
+        itemIndex,
+        action: 'remove' 
     }
 }
 
@@ -26,7 +33,14 @@ function toggleInputDisplay() {
 function detectEnter(event, textArea) {
     var code = (event.keyCode ? event.keyCode : event.which)
     if (code == 13) {
-        toDoItem.item = textArea.textContent
+        // Creating new Value object
+        toDoItem.item = new Value()
+
+        // Getting the Value object 
+        const currentItem = toDoItem.item
+
+        // Calling the dependencies
+        currentItem.value = textArea.textContent
         textArea.textContent = ''
     }
 }
