@@ -1,7 +1,6 @@
 function itemAction(item, action) {
     let itemIndex = Number(item.getAttribute('id').split(/item/)[1])
     let valueObj = toDoItem.items[itemIndex]
-
     // Set value along with the action
     valueObj.value = {
         item,
@@ -33,7 +32,6 @@ function detectEnter(event, textArea) {
         // Creating new Value object
         var valueObj = new Value()
         toDoItem.item = valueObj
-
         // Calling the dependencies
         valueObj.value = textArea.textContent
         textArea.textContent = ''

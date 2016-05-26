@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <title> Self Adjusting computation App </title>
     <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/main.css">
@@ -20,50 +20,45 @@
         </div>
     </div>
     <script>
-	class Value {
-	    constructor(value) {
-	    	this._value = value
-	    	this._dependencies = []
-	    }
-	    get value() {
-	    	return this._value
-	    }
-	    set value(val) {
-	    	this._value = val
-	    	this._dependencies.forEach(f => { 
-	    		f(this) 
-	    	})
-	    }
-	    fetch(url) {
-	        fetch(url)
-	            .then(response => response.text())
-	            .then(body => this.value = body)
-	    }
-	    addDependency(f) {
-	    	this._dependencies.push(f)
-	    }
-	}
-
-    class ToDo {
-        constructor() {
-            this._items = []
+    // SAValue library
+    class Value {
+        constructor(value) {
+            this._value = value
+            this._dependencies = []
         }
-        set item(val) {
-        	// Setting dependencies
-	        val.addDependency(addItem)
-	        val.addDependency(removeItem)
-
-	        // Pusing the Value object into array
-        	this._items.push(val)
+        get value() {
+            return this._value
         }
-		get items() {
-        	return this._items
+        set value(val) {
+            this._value = val
+            this._dependencies.forEach(f => {
+                f(this)
+            })
         }
-     }
+        fetch(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(body => this.value = body)
+        }
+        addDependency(f) {
+            this._dependencies.push(f)
+        }
+    }
+    // To-do Object 
+    var toDoItem = {
+            '_items': [],
+            set item(val) {
+                // Setting dependencies
+                val.addDependency(addItem)
+                val.addDependency(removeItem)
 
-    // New todo list
-    var toDoItem = new ToDo()
-
+                // Pusing the Value object into array
+                this._items.push(val)
+            },
+            get items() {
+                return this._items
+            }
+        }
     // Add item
     function addItem(listItem) {
         var parent = document.getElementById('toDo')
@@ -75,32 +70,25 @@
             div.setAttribute('onclick', 'itemAction(this)')
             div.textContent = listItem.value
             parent.insertBefore(div, parent.firstChild)
-        }    	
+        }
     }
-
+    // Remove item
     function removeItem(listItem) {
         var parent = document.getElementById('toDo')
         var valueObj = listItem.value
-
         if (valueObj != null && typeof valueObj === 'object') {
-
             // if action is to remove item
             if (valueObj.action === 'remove') {
                 // remove item from DOM
                 valueObj.item.remove()
-
                 // remove item from array
                 toDoItem._items.splice(valueObj.itemIndex, 1)
-
                 // get all item nodes
                 var itemNodes = parent.childNodes
-
                 // Reorder id's of all toDo items
                 var index = itemNodes.length - 1
-                for(var i = 0; i < itemNodes.length; i++) {
-                    // console.log(`Reordering ${itemNodes[i].getAttribute('id')} to item${index}`)
-                    itemNodes[i].setAttribute('id', `item${index--}`)                    
-                }
+                for (var i = 0; i < itemNodes.length; i++)
+                    itemNodes[i].setAttribute('id', `item${index--}`)
             }
         }
     }
