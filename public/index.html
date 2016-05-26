@@ -2,7 +2,7 @@
 <html>
 
 <head>
-	<meta charset="utf-8">
+    <meta charset="utf-8">
     <title> Self Adjusting computation App </title>
     <link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/main.css">
@@ -20,67 +20,45 @@
         </div>
     </div>
     <script>
-	class Value {
-	    constructor(value) {
-	    	this._value = value
-	    	this._dependencies = []
-	    }
-	    get value() {
-	    	return this._value
-	    }
-	    set value(val) {
-	    	this._value = val
-	    	this._dependencies.forEach(f => { 
-	    		f(this) 
-	    	})
-	    }
-	    fetch(url) {
-	        fetch(url)
-	            .then(response => response.text())
-	            .then(body => this.value = body)
-	    }
-	    addDependency(f) {
-	    	this._dependencies.push(f)
-	    }
-	}
-
-    class ToDo {
-        constructor() {
-            this._items = []
-            this._currItem = null
-            this._top = -1
+    // SAValue library
+    class Value {
+        constructor(value) {
+            this._value = value
+            this._dependencies = []
         }
-        get item() {
-        	return this._currItem
+        get value() {
+            return this._value
         }
-        set item(val) {
-        	// Setting current item object
-        	this._currItem = val
-
-        	// Setting dependencies
-	        val.addDependency(addItem)
-	        val.addDependency(removeItem)
-
-	        //Incrementing number of items in the array
-	        this._top++
-
-	        // Pusing the Value object into array
-        	this._items.push(val)
+        set value(val) {
+            this._value = val
+            this._dependencies.forEach(f => {
+                f(this)
+            })
         }
-		get items() {
-        	return this._items
+        fetch(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(body => this.value = body)
         }
-        set top(val) {
-        	this._top = val
+        addDependency(f) {
+            this._dependencies.push(f)
         }
-        get top() {
-        	return this._top
-        }
-     }
+    }
+    // To-do Object 
+    var toDoItem = {
+            '_items': [],
+            set item(val) {
+                // Setting dependencies
+                val.addDependency(addItem)
+                val.addDependency(removeItem)
 
-    // New todo list
-    var toDoItem = new ToDo()
-
+                // Pusing the Value object into array
+                this._items.push(val)
+            },
+            get items() {
+                return this._items
+            }
+        }
     // Add item
     function addItem(listItem) {
         var parent = document.getElementById('toDo')
@@ -88,41 +66,29 @@
         if (listItem.value != null && typeof listItem.value === 'string') {
             var div = document.createElement('div')
             div.setAttribute('class', 'listItems')
-            div.setAttribute('id', `item${toDoItem.top}`)
+            div.setAttribute('id', `item${toDoItem.items.length-1}`)
             div.setAttribute('onclick', 'itemAction(this)')
             div.textContent = listItem.value
             parent.insertBefore(div, parent.firstChild)
-        }    	
+        }
     }
-
+    // Remove item
     function removeItem(listItem) {
         var parent = document.getElementById('toDo')
         var valueObj = listItem.value
-
         if (valueObj != null && typeof valueObj === 'object') {
-
             // if action is to remove item
             if (valueObj.action === 'remove') {
-                
-                console.log("will remove item: " + valueObj.itemId)
-
                 // remove item from DOM
-                console.log("Deleting: " + valueObj.itemId)
                 valueObj.item.remove()
-
                 // remove item from array
                 toDoItem._items.splice(valueObj.itemIndex, 1)
-                toDoItem.top--
-
                 // get all item nodes
                 var itemNodes = parent.childNodes
-
                 // Reorder id's of all toDo items
                 var index = itemNodes.length - 1
-                for(var i = 0; i < itemNodes.length; i++) {
-                    // console.log(`Reordering ${itemNodes[i].getAttribute('id')} to item${index}`)
-                    itemNodes[i].setAttribute('id', `item${index--}`)                    
-                }
+                for (var i = 0; i < itemNodes.length; i++)
+                    itemNodes[i].setAttribute('id', `item${index--}`)
             }
         }
     }
