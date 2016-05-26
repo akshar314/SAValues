@@ -61,7 +61,7 @@
     var toDoItems = []
 
     // add, edit, remove dependencies   
-    function editItem(listItem) {
+    function itemAction(listItem) {
         var parent = document.getElementById('toDo')
         // Add item
         if (!listItem.domNode) {
@@ -121,7 +121,7 @@
 	        // Creating new Value object
 	        var valueObj = new SAValue()
 	        // Adding dependencies to the Value Object
-	        valueObj.addDependency(editItem)
+	        valueObj.addDependency(itemAction)
 	        // Calling the dependencies on Value Object
 	        valueObj.value = textArea.textContent
 	        // Clearing input area
