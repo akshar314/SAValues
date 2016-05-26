@@ -21,19 +21,24 @@
     </div>
     <script>
     // SAValue library
-    class Value {
-        constructor(value) {
-            this._value = value
+    class SAValue {
+        constructor() {
+            this._value = null
+            this._DOMNode = null
             this._dependencies = []
+        }
+        get DOMNode() {
+            return this._DOMNode
+        }
+        set DOMNode(val) {
+            this._DOMNode = val
         }
         get value() {
             return this._value
         }
         set value(val) {
             this._value = val
-            this._dependencies.forEach(f => {
-                f(this)
-            })
+            this._dependencies.forEach(f => f(this))
         }
         fetch(url) {
             fetch(url)
@@ -49,51 +54,81 @@
             '_items': [],
             set item(val) {
                 // Setting dependencies
-                val.addDependency(addItem)
-                val.addDependency(removeItem)
-
-                // Pusing the Value object into array
+                val.addDependency(editItem)
+                // Pushing the Value object into an array
                 this._items.push(val)
             },
             get items() {
                 return this._items
             }
         }
-    // Add item
-    function addItem(listItem) {
+    // add, edit, remove dependencies   
+    function editItem(listItem) {
         var parent = document.getElementById('toDo')
-
-        if (listItem.value != null && typeof listItem.value === 'string') {
+        // Add item
+        if (!listItem.DOMNode) {
+        	// creating a div element
             var div = document.createElement('div')
             div.setAttribute('class', 'listItems')
-            div.setAttribute('id', `item${toDoItem.items.length-1}`)
-            div.setAttribute('onclick', 'itemAction(this)')
+            div.setAttribute('onclick', 'deleteItem(this)')
             div.textContent = listItem.value
+            // inserting the div element to DOM
             parent.insertBefore(div, parent.firstChild)
+            // setting the DOMNode property of Value Object to div element
+            listItem.DOMNode = div
+        }
+        // Remove item
+        else if (listItem.DOMNode && !listItem.value) {
+            var valueObj = listItem.DOMNode
+            // remove item from DOM
+            valueObj.remove()
+            // remove item from array
+            var valIndex = toDoItem.items.findIndex((currValObj) => currValObj.DOMNode === valueObj)
+			toDoItem.items.splice(valIndex, 1)
+        }
+        // Edit item
+        else if (listItem.DOMNode && listItem.value) {
+        	var valueObj = listItem.DOMNode
+
         }
     }
-    // Remove item
-    function removeItem(listItem) {
-        var parent = document.getElementById('toDo')
-        var valueObj = listItem.value
-        if (valueObj != null && typeof valueObj === 'object') {
-            // if action is to remove item
-            if (valueObj.action === 'remove') {
-                // remove item from DOM
-                valueObj.item.remove()
-                // remove item from array
-                toDoItem._items.splice(valueObj.itemIndex, 1)
-                // get all item nodes
-                var itemNodes = parent.childNodes
-                // Reorder id's of all toDo items
-                var index = itemNodes.length - 1
-                for (var i = 0; i < itemNodes.length; i++)
-                    itemNodes[i].setAttribute('id', `item${index--}`)
-            }
-        }
-    }
+	// single click - remove item
+	function deleteItem(item) {
+	    // Finding the Value Object
+	    var valueObj = toDoItem.items.find((currValObj) => item === currValObj.DOMNode)
+	    valueObj.value = null
+	}
+	// To hide/show input area
+	function toggleInputDisplay() {
+	    var inputElement = document.getElementsByClassName('input')[0]
+	    var displayElement = document.getElementsByClassName('display')[0]
+	    inputElement.classList.toggle('hideElement')
+
+	    // Move display to the right after hiding input div
+	    if (inputElement.classList.contains('hideElement')) {
+	        displayElement.classList.remove('displayLeft')
+	        displayElement.classList.add('displayRight')
+	    }
+	    // Move display to the left
+	    else {
+	        displayElement.classList.remove('displayRight')
+	        displayElement.classList.add('displayLeft')
+	    }
+	}
+	// Adding item when 'Enter' is pressed
+	function detectEnter(event, textArea) {
+	    var code = (event.keyCode ? event.keyCode : event.which)
+	    if (code == 13) {
+	        // Creating new Value object
+	        var valueObj = new SAValue()
+	        toDoItem.item = valueObj
+	        // Calling the dependencies on Value Object
+	        valueObj.value = textArea.textContent
+	        // Clearing input area
+	        textArea.textContent = ''
+	    }
+	}
     </script>
-    <script type="text/javascript" src="js/main.js"></script>
 </body>
 
 </html>
