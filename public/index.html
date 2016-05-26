@@ -24,7 +24,7 @@
         </div>
         <div class="input">
             <h3 class="divTitle"> Enter Item </h3>
-            <div id="textArea" contenteditable="true" onkeypress="detectEnter(event,this)"></div>
+            <div id="textArea" contenteditable="true" onkeypress="addItem(event,this)"></div>
         </div>
     </div>
     <script>
@@ -60,10 +60,20 @@
     // Array to store to-do items as SAValue Objects
     var toDoItems = []
 
-    // add, edit, remove dependencies   
-    function itemAction(listItem) {
+    // add, edit, remove dependencies to SAValue objects   
+    var itemAction = function(listItem) {
         var parent = document.getElementById('toDo')
-        // Add item
+        // Remove item from DOM
+        if (!listItem.value) {
+            var valueObj = listItem.domNode
+            // remove item from DOM
+            valueObj.remove()
+            // remove item from array
+            var valIndex = toDoItems.findIndex((currValObj) => currValObj.domNode === valueObj)
+			toDoItems.splice(valIndex, 1)
+			return
+        }
+        // Add item to DOM
         if (!listItem.domNode) {
         	// creating a div element
         	toDoItems.push(listItem)
@@ -74,23 +84,26 @@
             // inserting the div element to DOM
             parent.insertBefore(div, parent.firstChild)
             // setting the domNode property of Value Object to div element
-            listItem.domNode = div
+            listItem.domNode = div       
+            return 	
         }
-        // Remove item
-        else if (listItem.domNode && !listItem.value) {
-            var valueObj = listItem.domNode
-            // remove item from DOM
-            valueObj.remove()
-            // remove item from array
-            var valIndex = toDoItems.findIndex((currValObj) => currValObj.domNode === valueObj)
-			toDoItems.splice(valIndex, 1)
-        }
-        // Edit item
-        else if (listItem.domNode && listItem.value) {
-        	var valueObj = listItem.domNode
+        // Edit item in DOM
 
-        }
     }
+	// Add item when 'Enter' is pressed
+	function addItem(event, textArea) {
+	    var code = (event.keyCode ? event.keyCode : event.which)
+	    if (code == 13) { 
+	        // Creating new Value object
+	        var valueObj = new SAValue()
+	        // Adding dependencies to the Value Object
+	        valueObj.addDependency(itemAction)
+	        // Calling the dependencies on Value Object
+	        valueObj.value = textArea.textContent
+	        // Clearing input area
+	        textArea.textContent = ''
+	    }
+	}
 	// single click - remove item
 	function deleteItem(item) {
 	    // Finding the Value Object
@@ -112,20 +125,6 @@
 	    else {
 	        displayElement.classList.remove('displayRight')
 	        displayElement.classList.add('displayLeft')
-	    }
-	}
-	// Adding item when 'Enter' is pressed
-	function detectEnter(event, textArea) {
-	    var code = (event.keyCode ? event.keyCode : event.which)
-	    if (code == 13) {
-	        // Creating new Value object
-	        var valueObj = new SAValue()
-	        // Adding dependencies to the Value Object
-	        valueObj.addDependency(itemAction)
-	        // Calling the dependencies on Value Object
-	        valueObj.value = textArea.textContent
-	        // Clearing input area
-	        textArea.textContent = ''
 	    }
 	}
     </script>
