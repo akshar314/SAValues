@@ -47,27 +47,17 @@
     class ToDo {
         constructor() {
             this._items = []
-            this._top = -1
         }
         set item(val) {
         	// Setting dependencies
 	        val.addDependency(addItem)
 	        val.addDependency(removeItem)
 
-	        //Incrementing number of items in the array
-	        this._top++
-
 	        // Pusing the Value object into array
         	this._items.push(val)
         }
 		get items() {
         	return this._items
-        }
-        set top(val) {
-        	this._top = val
-        }
-        get top() {
-        	return this._top
         }
      }
 
@@ -81,7 +71,7 @@
         if (listItem.value != null && typeof listItem.value === 'string') {
             var div = document.createElement('div')
             div.setAttribute('class', 'listItems')
-            div.setAttribute('id', `item${toDoItem.top}`)
+            div.setAttribute('id', `item${toDoItem.items.length-1}`)
             div.setAttribute('onclick', 'itemAction(this)')
             div.textContent = listItem.value
             parent.insertBefore(div, parent.firstChild)
@@ -101,7 +91,6 @@
 
                 // remove item from array
                 toDoItem._items.splice(valueObj.itemIndex, 1)
-                toDoItem.top--
 
                 // get all item nodes
                 var itemNodes = parent.childNodes

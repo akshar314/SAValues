@@ -1,9 +1,8 @@
 function itemAction(item, action) {
-    // Delete item
-
     let itemIndex = Number(item.getAttribute('id').split(/item/)[1])
     let valueObj = toDoItem.items[itemIndex]
 
+    // Set value along with the action
     valueObj.value = {
         item,
         itemIndex,
