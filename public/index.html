@@ -47,16 +47,9 @@
     class ToDo {
         constructor() {
             this._items = []
-            this._currItem = null
             this._top = -1
         }
-        get item() {
-        	return this._currItem
-        }
         set item(val) {
-        	// Setting current item object
-        	this._currItem = val
-
         	// Setting dependencies
 	        val.addDependency(addItem)
 	        val.addDependency(removeItem)
@@ -103,11 +96,7 @@
 
             // if action is to remove item
             if (valueObj.action === 'remove') {
-                
-                console.log("will remove item: " + valueObj.itemId)
-
                 // remove item from DOM
-                console.log("Deleting: " + valueObj.itemId)
                 valueObj.item.remove()
 
                 // remove item from array

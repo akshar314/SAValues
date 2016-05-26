@@ -1,13 +1,11 @@
 function itemAction(item, action) {
     // Delete item
 
-    let itemId = item.getAttribute('id')
-    let itemIndex = Number(itemId.split(/item/)[1])
+    let itemIndex = Number(item.getAttribute('id').split(/item/)[1])
     let valueObj = toDoItem.items[itemIndex]
 
     valueObj.value = {
         item,
-        itemId,
         itemIndex,
         action: 'remove' 
     }
@@ -34,13 +32,11 @@ function detectEnter(event, textArea) {
     var code = (event.keyCode ? event.keyCode : event.which)
     if (code == 13) {
         // Creating new Value object
-        toDoItem.item = new Value()
-
-        // Getting the Value object 
-        const currentItem = toDoItem.item
+        var valueObj = new Value()
+        toDoItem.item = valueObj
 
         // Calling the dependencies
-        currentItem.value = textArea.textContent
+        valueObj.value = textArea.textContent
         textArea.textContent = ''
     }
 }
