@@ -70,7 +70,7 @@
         	// creating a div element
             var div = document.createElement('div')
             div.setAttribute('class', 'listItems')
-            div.setAttribute('onclick', 'itemAction(this)')
+            div.setAttribute('onclick', 'deleteItem(this)')
             div.textContent = listItem.value
             // inserting the div element to DOM
             parent.insertBefore(div, parent.firstChild)
@@ -86,12 +86,16 @@
             var valIndex = toDoItem.items.findIndex((currValObj) => currValObj.DOMNode === valueObj)
 			toDoItem.items.splice(valIndex, 1)
         }
+        // Edit item
+        else if (listItem.DOMNode && listItem.value) {
+        	var valueObj = listItem.DOMNode
+
+        }
     }
-	// Edit or remove item based on user input
-	function itemAction(item, action) {
+	// single click - remove item
+	function deleteItem(item) {
 	    // Finding the Value Object
 	    var valueObj = toDoItem.items.find((currValObj) => item === currValObj.DOMNode)
-	    // Deleting it if action is 'remove'
 	    valueObj.value = null
 	}
 	// To hide/show input area
