@@ -12,7 +12,15 @@
     <div class="container">
         <div class="display">
             <h1 class="divTitle" onclick="toggleInputDisplay()"> To Do list </h1>
-            <div id="toDo"></div>
+            <div id="toDo">
+            	<!-- <div>
+            		<div class="listItems" onclick="deleteItem(this)"> Dummy Text </div>
+            		<div class="removeButton">
+            			<img src="images/dustbin.png">
+            		</div>
+            		<div class="editButton"></div>
+            	</div> -->
+            </div>
         </div>
         <div class="input">
             <h3 class="divTitle"> Enter Item </h3>
@@ -24,14 +32,14 @@
     class SAValue {
         constructor() {
             this._value = null
-            this._DOMNode = null
+            this._domNode = null
             this._dependencies = []
         }
-        get DOMNode() {
-            return this._DOMNode
+        get domNode() {
+            return this._domNode
         }
-        set DOMNode(val) {
-            this._DOMNode = val
+        set domNode(val) {
+            this._domNode = val
         }
         get value() {
             return this._value
@@ -49,53 +57,44 @@
             this._dependencies.push(f)
         }
     }
-    // To-do Object 
-    var toDoItem = {
-            '_items': [],
-            set item(val) {
-                // Setting dependencies
-                val.addDependency(editItem)
-                // Pushing the Value object into an array
-                this._items.push(val)
-            },
-            get items() {
-                return this._items
-            }
-        }
+    // Array to store to-do items as SAValue Objects
+    var toDoItems = []
+
     // add, edit, remove dependencies   
     function editItem(listItem) {
         var parent = document.getElementById('toDo')
         // Add item
-        if (!listItem.DOMNode) {
+        if (!listItem.domNode) {
         	// creating a div element
+        	toDoItems.push(listItem)
             var div = document.createElement('div')
             div.setAttribute('class', 'listItems')
             div.setAttribute('onclick', 'deleteItem(this)')
             div.textContent = listItem.value
             // inserting the div element to DOM
             parent.insertBefore(div, parent.firstChild)
-            // setting the DOMNode property of Value Object to div element
-            listItem.DOMNode = div
+            // setting the domNode property of Value Object to div element
+            listItem.domNode = div
         }
         // Remove item
-        else if (listItem.DOMNode && !listItem.value) {
-            var valueObj = listItem.DOMNode
+        else if (listItem.domNode && !listItem.value) {
+            var valueObj = listItem.domNode
             // remove item from DOM
             valueObj.remove()
             // remove item from array
-            var valIndex = toDoItem.items.findIndex((currValObj) => currValObj.DOMNode === valueObj)
-			toDoItem.items.splice(valIndex, 1)
+            var valIndex = toDoItems.findIndex((currValObj) => currValObj.domNode === valueObj)
+			toDoItems.splice(valIndex, 1)
         }
         // Edit item
-        else if (listItem.DOMNode && listItem.value) {
-        	var valueObj = listItem.DOMNode
+        else if (listItem.domNode && listItem.value) {
+        	var valueObj = listItem.domNode
 
         }
     }
 	// single click - remove item
 	function deleteItem(item) {
 	    // Finding the Value Object
-	    var valueObj = toDoItem.items.find((currValObj) => item === currValObj.DOMNode)
+	    var valueObj = toDoItems.find((currValObj) => item === currValObj.domNode)
 	    valueObj.value = null
 	}
 	// To hide/show input area
@@ -121,7 +120,8 @@
 	    if (code == 13) {
 	        // Creating new Value object
 	        var valueObj = new SAValue()
-	        toDoItem.item = valueObj
+	        // Adding dependencies to the Value Object
+	        valueObj.addDependency(editItem)
 	        // Calling the dependencies on Value Object
 	        valueObj.value = textArea.textContent
 	        // Clearing input area
