@@ -11,15 +11,15 @@
 <body>
 
     <template id="itemDiv">
-        <div class="itemContainer"><!-- 
-             --><div class="listItems"></div><!-- 
-             --><div class="remove" title="remove" onclick="deleteItem(this)"><!-- 
-                     --><img src="images/dustbin.png"><!-- 
-            --></div><!-- 
-             --><div class="edit" title="edit" onclick="editItem(this)"><!-- 
-                 --><img src="images/edit.png"><!-- 
-             --></div><!-- 
-         --></div>
+        <div class="itemContainer" onmouseover="showOptions(this)" onmouseout="hideOptions(this)">
+            <div class="listItems"></div>
+            <div class="remove hideElement" title="remove" onclick="deleteItem(this)">
+                    <img src="images/dustbin.png">
+           </div>
+            <div class="edit hideElement" title="edit" onclick="editItem(this)">
+                <img src="images/edit.png">
+            </div>
+        </div>
     </template>
 
     <div class="container">
@@ -159,8 +159,22 @@
             displayElement.classList.add('displayLeft')
         }
     }
+    // Show item options
+    function showOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.remove('hideElement')
+            }
+        }
+    }
+    // hide item options
+    function hideOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.add('hideElement')
+            }
+        }
+    }
     </script>
 </body>
-
 </html>
-
