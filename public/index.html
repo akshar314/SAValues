@@ -9,14 +9,27 @@
 </head>
 
 <body>
+
+    <template id="itemDiv">
+        <div class="itemContainer" onmouseover="showOptions(this)" onmouseout="hideOptions(this)">
+            <div class="listItems"></div>
+            <div class="remove hideElement" title="remove" onclick="deleteItem(this)">
+                    <img src="images/dustbin.png">
+           </div>
+            <div class="edit hideElement" title="edit" onclick="editItem(this)">
+                <img src="images/edit.png">
+            </div>
+        </div>
+    </template>
+
     <div class="container">
         <div class="display">
-            <h1 class="divTitle" onclick="toggleInputDisplay()"> To Do list </h1>
-            <div id="toDo"></div>
+            <h1 class="divTitle" onclick="toggleInputDisplay()" title="Hide Enter Item Screen"> To Do list </h1>
+            <div id="toDo" ></div>
         </div>
         <div class="input">
             <h3 class="divTitle"> Enter Item </h3>
-            <div id="textArea" contenteditable="true" onkeypress="detectEnter(event,this)"></div>
+            <div id="textArea" contenteditable="true" onkeypress="addItem(event,this)"></div>
         </div>
     </div>
     <script>
@@ -24,14 +37,14 @@
     class SAValue {
         constructor() {
             this._value = null
-            this._DOMNode = null
+            this._domNode = null
             this._dependencies = []
         }
-        get DOMNode() {
-            return this._DOMNode
+        get domNode() {
+            return this._domNode
         }
-        set DOMNode(val) {
-            this._DOMNode = val
+        set domNode(val) {
+            this._domNode = val
         }
         get value() {
             return this._value
@@ -49,86 +62,121 @@
             this._dependencies.push(f)
         }
     }
-    // To-do Object 
-    var toDoItem = {
-            '_items': [],
-            set item(val) {
-                // Setting dependencies
-                val.addDependency(editItem)
-                // Pushing the Value object into an array
-                this._items.push(val)
-            },
-            get items() {
-                return this._items
-            }
-        }
-    // add, edit, remove dependencies   
-    function editItem(listItem) {
-        var parent = document.getElementById('toDo')
-        // Add item
-        if (!listItem.DOMNode) {
-        	// creating a div element
-            var div = document.createElement('div')
-            div.setAttribute('class', 'listItems')
-            div.setAttribute('onclick', 'deleteItem(this)')
-            div.textContent = listItem.value
-            // inserting the div element to DOM
-            parent.insertBefore(div, parent.firstChild)
-            // setting the DOMNode property of Value Object to div element
-            listItem.DOMNode = div
-        }
-        // Remove item
-        else if (listItem.DOMNode && !listItem.value) {
-            var valueObj = listItem.DOMNode
-            // remove item from DOM
-            valueObj.remove()
-            // remove item from array
-            var valIndex = toDoItem.items.findIndex((currValObj) => currValObj.DOMNode === valueObj)
-			toDoItem.items.splice(valIndex, 1)
-        }
-        // Edit item
-        else if (listItem.DOMNode && listItem.value) {
-        	var valueObj = listItem.DOMNode
+    // Array to store to-do items as SAValue Objects
+    var toDoItems = []
 
+    // add, edit, remove dependencies to SAValue objects   
+    var itemAction = function(listItem) {
+        var parent = document.getElementById('toDo')
+        // Remove item from DOM
+        if (!listItem.value) {
+            let domNode = listItem.domNode
+            let itemIndex = parseInt(domNode.id.split(/item/)[1])
+            // remove item from DOM
+            domNode.remove()
+            // remove item from array
+            toDoItems.splice(itemIndex, 1)
+            // get all item nodes
+            let itemNodes = parent.children
+            // Resetting id's
+            let index = itemNodes.length - 1
+            for(var i = 0; i < itemNodes.length; i++) {
+                itemNodes[i].setAttribute('id', `item${index--}`)                    
+            }
+            return
+        }
+        // Add item to DOM
+        if (!listItem.domNode) {
+            // Create clone from template
+            let content = document.querySelector('#itemDiv').content
+            content.querySelector('.itemContainer .listItems').textContent = listItem.value
+            content.querySelector('.itemContainer').id = `item${toDoItems.length}`
+            let clone = document.importNode(content, true)
+            parent.insertBefore(clone, parent.firstChild)
+            // Setting item id
+            let divContainer = document.getElementById(`item${toDoItems.length}`)
+            listItem.domNode = divContainer
+            // Pushing SAValue Object into array
+            toDoItems.push(listItem)
+            return
+        }
+        // Automatic updation since objects are stored in the array
+    }
+    // Add item when 'Enter' is pressed
+    function addItem(event, textArea) {
+        var code = (event.keyCode ? event.keyCode : event.which)
+        if (code == 13) { 
+            // Creating new Value object
+            var valueObj = new SAValue()
+            // Adding dependencies to the Value Object
+            valueObj.addDependency(itemAction)
+            // Calling the dependencies on Value Object
+            valueObj.value = textArea.textContent
+            // Clearing input area
+            textArea.textContent = ''
         }
     }
-	// single click - remove item
-	function deleteItem(item) {
-	    // Finding the Value Object
-	    var valueObj = toDoItem.items.find((currValObj) => item === currValObj.DOMNode)
-	    valueObj.value = null
-	}
-	// To hide/show input area
-	function toggleInputDisplay() {
-	    var inputElement = document.getElementsByClassName('input')[0]
-	    var displayElement = document.getElementsByClassName('display')[0]
-	    inputElement.classList.toggle('hideElement')
+    // Edit item
+    function editItem(item) {
+        // Finding the value Object
+        var itemId = item.parentNode.id
+        var itemIndex = parseInt(itemId.split(/item/)[1])
+        var valueObj = toDoItems[itemIndex]
 
-	    // Move display to the right after hiding input div
-	    if (inputElement.classList.contains('hideElement')) {
-	        displayElement.classList.remove('displayLeft')
-	        displayElement.classList.add('displayRight')
-	    }
-	    // Move display to the left
-	    else {
-	        displayElement.classList.remove('displayRight')
-	        displayElement.classList.add('displayLeft')
-	    }
-	}
-	// Adding item when 'Enter' is pressed
-	function detectEnter(event, textArea) {
-	    var code = (event.keyCode ? event.keyCode : event.which)
-	    if (code == 13) {
-	        // Creating new Value object
-	        var valueObj = new SAValue()
-	        toDoItem.item = valueObj
-	        // Calling the dependencies on Value Object
-	        valueObj.value = textArea.textContent
-	        // Clearing input area
-	        textArea.textContent = ''
-	    }
-	}
+        var domNode = document.getElementById(itemId).children[0]
+        // Setting text as editable
+        domNode.setAttribute('contenteditable', 'true')
+        domNode.style.cursor = 'text'
+        // Setting focus on the text
+        domNode.focus()
+        // Listening for out of focus event
+        domNode.addEventListener('DOMFocusOut', function(event) {
+            this.removeAttribute('contenteditable')
+            this.style.cursor = 'default'
+            // Setting SAValue Object to new value
+            valueObj.value = this.textContent
+        }) 
+    }
+    // single click - remove item
+    function deleteItem(item) {
+        // Finding the Value Object
+        var itemIndex = parseInt(item.parentNode.id.split(/item/)[1])
+        var valueObj = toDoItems[itemIndex]
+        // var valueObj = toDoItems.find((currValObj) => item === currValObj.domNode)
+        valueObj.value = null
+    }
+    // To hide/show input area
+    function toggleInputDisplay() {
+        var inputElement = document.getElementsByClassName('input')[0]
+        var displayElement = document.getElementsByClassName('display')[0]
+        inputElement.classList.toggle('hideElement')
+        // Move display to the right after hiding input div
+        if (inputElement.classList.contains('hideElement')) {
+            displayElement.classList.remove('displayLeft')
+            displayElement.classList.add('displayRight')
+        }
+        // Move display to the left
+        else {
+            displayElement.classList.remove('displayRight')
+            displayElement.classList.add('displayLeft')
+        }
+    }
+    // Show item options
+    function showOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.remove('hideElement')
+            }
+        }
+    }
+    // hide item options
+    function hideOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.add('hideElement')
+            }
+        }
+    }
     </script>
 </body>
-
 </html>
