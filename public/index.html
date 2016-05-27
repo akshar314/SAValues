@@ -126,11 +126,13 @@
         var domNode = document.getElementById(itemId).children[0]
         // Setting text as editable
         domNode.setAttribute('contenteditable', 'true')
+        domNode.style.cursor = 'text'
         // Setting focus on the text
         domNode.focus()
         // Listening for out of focus event
         domNode.addEventListener('DOMFocusOut', function(event) {
             this.removeAttribute('contenteditable')
+            this.style.cursor = 'default'
             // Setting SAValue Object to new value
             valueObj.value = this.textContent
         }) 
