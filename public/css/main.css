@@ -142,7 +142,8 @@ body {
 	border-radius: 0.8em;
 }
 
-#textArea:focus {
+#textArea:focus,
+.itemContainer .listItems {
 	outline: 0px solid transparent;
 }
 
@@ -153,17 +154,42 @@ body {
 	font-size: 30px;
 }
 
-.listItems {
-	position: relative;
-	font-size: 2.8em;
-	padding:2%;
+.itemContainer {
+	padding: 2%;
 	border-bottom: 2px solid grey;
+	overflow: hidden;
+}
+
+.itemContainer:hover {
+	background-color: #FF98A9;
+}
+
+.listItems {
+	float:left;
+	font-size: 2.8em;
+	padding: 1%;
+	width: 80%;
+}
+
+.remove,
+.edit{
+	display: inline;
+	margin-right:3%; 
 	cursor: pointer;
 }
 
-.listItems:hover {
-	background-color: #FF70DB;
+.remove > img,
+.edit > img {
+	width: 6%;
 }
+
+.remove:hover,
+.edit:hover{
+	display: inline;
+	margin-right:3%; 
+	cursor: pointer;
+}
+
 
 .hideElement {
 	visibility: hidden;
@@ -181,8 +207,4 @@ body {
 	-webkit-transform: translateX(-5%);
 	   -moz-transform: translateX(-5%);
 	        transform: translateX(-5%);
-}
-
-.removeButton {
-	
 }
