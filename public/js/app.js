@@ -1,0 +1,151 @@
+   // SAValue library
+    class SAValue {
+        constructor() {
+            this._value = null
+            this._domNode = null
+            this._dependencies = []
+        }
+        get domNode() {
+            return this._domNode
+        }
+        set domNode(val) {
+            this._domNode = val
+        }
+        get value() {
+            return this._value
+        }
+        set value(val) {
+            this._value = val
+            this._dependencies.forEach(f => f(this))   
+
+
+        }
+        fetch(url) {
+            fetch(url)
+                .then(response => response.text())
+                .then(body => this.value = body)
+        }
+        addDependency(f) {
+            this._dependencies.push(f)
+        }
+    }
+    // Array to store to-do items as SAValue Objects
+    var toDoItems = []
+
+    // add, edit, remove dependencies to SAValue objects   
+    var itemAction = function(listItem) {
+        var parent = document.getElementById('toDo')
+        // Remove item from DOM
+        if (!listItem.value) {
+            let domNode = listItem.domNode
+            let itemIndex = parseInt(domNode.id.split(/item/)[1])
+            // remove item from DOM
+            domNode.remove()
+            // remove item from array
+            toDoItems.splice(itemIndex, 1)
+            // get all item nodes
+            let itemNodes = parent.children
+            // Resetting id's
+            let index = itemNodes.length - 1
+            for(var i = 0; i < itemNodes.length; i++) {
+                itemNodes[i].setAttribute('id', `item${index--}`)                    
+            }
+            return
+        }
+        // Add item to DOM  
+        if (!listItem.domNode) {
+            // Create clone from template
+            let content = document.querySelector('#itemDiv').content
+            content.querySelector('.itemContainer .listItems').textContent = listItem.value
+            content.querySelector('.itemContainer').id = `item${toDoItems.length}`
+            let clone = document.importNode(content, true)
+            parent.insertBefore(clone, parent.firstChild)
+            // Setting item id
+            let divContainer = document.getElementById(`item${toDoItems.length}`)
+            listItem.domNode = divContainer
+            // Pushing SAValue Object into array
+            toDoItems.push(listItem)
+            return
+        }
+        // Automatic updation since objects are stored in the array
+    }
+    // Add item when 'Enter' is pressed
+    function addItem(event, textArea) {
+        var code = (event.keyCode ? event.keyCode : event.which)
+        if (code == 13) { 
+            // Creating new Value object
+            var valueObj = new SAValue()
+            // Adding dependencies to the Value Object
+            valueObj.addDependency(itemAction)
+            // Calling the dependencies on Value Object
+            valueObj.value = textArea.textContent
+            // Clearing input area
+            textArea.textContent = ''
+        }
+    }
+    // Edit item
+    function editItem(item) {
+        // Finding the value Object
+        var itemId = item.parentNode.id
+        console.log(item)
+        console.log(item.parentNode)
+        // console.log(itemId)
+        // console.log()
+        var itemIndex = parseInt(itemId.split(/item/)[1])
+        var valueObj = toDoItems[itemIndex]
+
+        var domNode = document.getElementById(itemId).children[0]
+        // Setting text as editable
+        domNode.setAttribute('contenteditable', 'true')
+        domNode.style.cursor = 'text'
+        // Setting focus on the text
+        domNode.focus()
+        // Listening for out of focus event
+        domNode.addEventListener('DOMFocusOut', function(event) {
+            this.removeAttribute('contenteditable')
+            this.style.cursor = 'default'
+            // Setting SAValue Object to new value
+            valueObj.value = this.textContent
+        }) 
+    }
+    // single click - remove item
+    function deleteItem(item) {
+        // Finding the Value Object
+            var itemIndex = parseInt(item.parentNode.id.split(/item/)[1])
+        
+        var valueObj = toDoItems[itemIndex]
+        // var valueObj = toDoItems.find((currValObj) => item === currValObj.domNode)
+        valueObj.value = null
+    }
+    // To hide/show input area
+    function toggleInputDisplay() {
+        var inputElement = document.getElementsByClassName('input')[0]
+        var displayElement = document.getElementsByClassName('display')[0]
+        inputElement.classList.toggle('hideElement')
+        // Move display to the right after hiding input div
+        if (inputElement.classList.contains('hideElement')) {
+            displayElement.classList.remove('displayLeft')
+            displayElement.classList.add('displayRight')
+        }
+        // Move display to the left
+        else {
+            displayElement.classList.remove('displayRight')
+            displayElement.classList.add('displayLeft')
+        }
+    }
+    // Show item options
+    function showOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.remove('hideElement')
+            }
+        }
+    }
+    // hide item options
+    function hideOptions(item) {
+        for(var node of item.children) {
+            if (node.classList.contains('remove') || node.classList.contains('edit') ) {
+                node.classList.add('hideElement')
+            }
+        }
+    }
